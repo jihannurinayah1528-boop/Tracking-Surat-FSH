@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Surat Persuratan - Fakultas Syariah dan Hukum</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header class="bg-emerald-800 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-white text-emerald-800 p-2 rounded-lg shadow">
+                    <i data-lucide="file-text" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">E-Surat Persuratan</h1>
+                    <p class="text-xs text-emerald-200">Fakultas Syariah dan Hukum - Tracking & Disposisi Surat</p>
+                </div>
+            </div>
+
+            <!-- Role Switcher (Pengalih Tampilan) -->
+            <div class="bg-emerald-900/60 p-1.5 rounded-xl border border-emerald-700/50 flex gap-1">
+                <button id="btn-role-mahasiswa" onclick="switchRole('mahasiswa')" class="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white text-emerald-800 shadow">
+                    <i data-lucide="user" class="w-3.5 h-3.5 inline mr-1"></i> Portal Mahasiswa
+                </button>
+                <button id="btn-role-tu" onclick="switchRole('tu')" class="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all text-emerald-200 hover:text-white">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5 inline mr-1"></i> Portal Staf TU / Admin
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6">
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: PORTAL MAHASISWA & PEMOHON -->
+        <!-- ========================================== -->
+        <section id="view-mahasiswa" class="space-y-6">
+            <div class="bg-gradient-to-r from-emerald-700 to-teal-800 rounded-2xl p-6 text-white shadow-lg">
+                <div class="max-w-2xl">
+                    <h2 class="text-2xl font-bold mb-2">Lacak Posisi & Status Surat Anda</h2>
+                    <p class="text-emerald-100 text-sm mb-4">Cek sejauh mana proses persuratan Anda secara real-time tanpa perlu mengantre di loket Tata Usaha.</p>
+                </div>
+                <!-- Search Box -->
+                <div class="bg-white p-2 rounded-xl shadow-md flex flex-col sm:flex-row gap-2 max-w-xl text-slate-800">
+                    <div class="flex-1 flex items-center gap-2 px-3 bg-slate-100 rounded-lg">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
+                        <input id="search-mhs" type="text" placeholder="Masukkan No. Agenda / NIM / Nama..." class="w-full bg-transparent py-2.5 text-sm outline-none">
+                    </div>
+                    <button onclick="searchSuratMhs()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-5 py-2.5 rounded-lg text-sm transition-all shadow">
+                        Cari Surat
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hasil Tracking Mahasiswa -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                <h3 class="font-bold text-base mb-4 flex items-center gap-2">
+                    <i data-lucide="list" class="w-5 h-5 text-emerald-600"></i> Status Permohonan Surat
+                </h3>
+                <div id="mhs-result-list" class="space-y-4"></div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: PORTAL STAF TATA USAHA (ADMIN) -->
+        <!-- ========================================== -->
+        <section id="view-tu" class="hidden space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800">Dashboard Persuratan TU</h2>
+                    <p class="text-xs text-slate-500">Kelola No. Agenda, Posisi Jabatan, dan Disposisi Pimpinan (Dekan, Kabag, Wadek 1, 2, 3).</p>
+                </div>
+            </div>
+
+            <!-- Table View TU -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-200 bg-slate-50">
+                    <input id="search-tu" onkeyup="renderTableTU()" type="text" placeholder="Cari No. Agenda, Pengirim, Perihal..." class="w-full sm:w-80 px-3 py-1.5 text-xs rounded-lg border border-slate-300 outline-none">
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="bg-slate-100 text-slate-700 font-semibold uppercase border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">No. Agenda</th>
+                                <th class="p-3">Tgl Masuk</th>
+                                <th class="p-3">Pengirim & No. HP</th>
+                                <th class="p-3">Perihal</th>
+                                <th class="p-3">Posisi Surat</th>
+                                <th class="p-3">Riwayat Disposisi</th>
+                                <th class="p-3">Status Surat</th>
+                                <th class="p-3">Target Selesai</th>
+                                <th class="p-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tu-table-body" class="divide-y divide-slate-200 bg-white"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Form Edit & Disposisi -->
+    <div id="modal-disposisi" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200">
+            <h3 class="font-bold text-base text-slate-800 mb-4 pb-2 border-b">Update Posisi & Disposisi Surat</h3>
+            
+            <form id="form-disposisi" onsubmit="saveDisposisi(event)" class="space-y-4">
+                <input type="hidden" id="edit-id">
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">Posisi Surat Saat Ini</label>
+                        <select id="edit-posisi" class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
+                            <option value="Dekan">Dekan</option>
+                            <option value="Kabag TU">Kabag TU</option>
+                            <option value="Wadek 1">Wadek 1</option>
+                            <option value="Wadek 2">Wadek 2</option>
+                            <option value="Wadek 3">Wadek 3</option>
+                            <option value="Staff TU">Staff TU</option>
+                            <option value="Siap Diambil">Siap Diambil</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">Status Keseluruhan</label>
+                        <select id="edit-status" class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
+                            <option value="Diterima TU">Diterima TU</option>
+                            <option value="Disposisi Pimpinan">Disposisi Pimpinan</option>
+                            <option value="Dalam Proses TTD">Dalam Proses TTD</option>
+                            <option value="Selesai">Selesai / Siap Diambil</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-slate-50 rounded-xl border space-y-2">
+                    <p class="text-xs font-bold text-emerald-800">Tambah / Update Catatan Disposisi</p>
+                    <select id="disp-pimpinan" class="w-full text-xs p-2 rounded-lg border border-slate-300 bg-white">
+                        <option value="dekan">Dekan</option>
+                        <option value="kabag">Kabag TU</option>
+                        <option value="wadek1">Wadek 1</option>
+                        <option value="wadek2">Wadek 2</option>
+                        <option value="wadek3">Wadek 3</option>
+                    </select>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="date" id="disp-tgl" class="text-xs p-2 rounded-lg border border-slate-300 bg-white">
+                        <input type="text" id="disp-ket" placeholder="Catatan Disposisi..." class="text-xs p-2 rounded-lg border border-slate-300 bg-white">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100">Batal</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg text-xs font-medium bg-emerald-600 text-white hover:bg-emerald-700">Simpan Disposisi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script Application Logic -->
+    <script>
+        let dataset = [
+            {
+                id: "AGD-2026-001",
+                tglMasuk: "2026-10-20",
+                pengirim: "Ahmad Fauzi (NIM 1223010045)",
+                noHp: "081234567890",
+                perihal: "Permohonan Izin Penelitian Skripsi",
+                posisi: "Wadek 1",
+                status: "Disposisi Pimpinan",
+                targetSelesai: "2026-10-23",
+                keterangan: "Menunggu paraf persetujuan lokasi penelitian",
+                disposisi: {
+                    dekan: { tgl: "2026-10-20", ket: "Teruskan ke Wadek 1" },
+                    kabag: { tgl: "2026-10-20", ket: "Arsip agenda & teruskan" },
+                    wadek1: { tgl: "2026-10-21", ket: "Dalam proses peninjauan berkas" },
+                    wadek2: { tgl: "", ket: "" },
+                    wadek3: { tgl: "", ket: "" }
+                }
+            },
+            {
+                id: "AGD-2026-002",
+                tglMasuk: "2026-10-21",
+                pengirim: "Siti Nurhaliza (NIM 1223020088)",
+                noHp: "085712345678",
+                perihal: "Surat Keterangan Masih Kuliah",
+                posisi: "Siap Diambil",
+                status: "Selesai",
+                targetSelesai: "2026-10-22",
+                keterangan: "Dapat diambil di Loket 2 TU membawa KTM asli",
+                disposisi: {
+                    dekan: { tgl: "", ket: "" },
+                    kabag: { tgl: "2026-10-21", ket: "Setujui & cetak" },
+                    wadek1: { tgl: "", ket: "" },
+                    wadek2: { tgl: "", ket: "" },
+                    wadek3: { tgl: "", ket: "" }
+                }
+            }
+        ];
+
+        function switchRole(role) {
+            if (role === 'mahasiswa') {
+                document.getElementById('view-mahasiswa').classList.remove('hidden');
+                document.getElementById('view-tu').classList.add('hidden');
+                renderMhsView(dataset);
+            } else {
+                document.getElementById('view-tu').classList.remove('hidden');
+                document.getElementById('view-mahasiswa').classList.add('hidden');
+                renderTableTU();
+            }
+        }
+
+        function renderMhsView(data) {
+            const container = document.getElementById('mhs-result-list');
+            container.innerHTML = '';
+            data.forEach(item => {
+                let dispHtml = '';
+                ['dekan', 'kabag', 'wadek1', 'wadek2', 'wadek3'].forEach(r => {
+                    if (item.disposisi[r] && item.disposisi[r].tgl) {
+                        dispHtml += `<div class="bg-slate-50 p-2 rounded border text-[11px] mb-1"><strong>${r.toUpperCase()} (${item.disposisi[r].tgl}):</strong> "${item.disposisi[r].ket}"</div>`;
+                    }
+                });
+
+                const card = document.createElement('div');
+                card.className = "p-4 rounded-xl border border-slate-200 bg-white space-y-2";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">${item.id}</span>
+                            <h4 class="font-bold text-sm text-slate-800 mt-1">${item.perihal}</h4>
+                        </div>
+                        <span class="text-xs font-bold px-2 py-1 bg-amber-100 text-amber-800 rounded-full">${item.status}</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs pt-1">
+                        <div>
+                            <p><strong>📍 Posisi Surat:</strong> <span class="bg-amber-50 px-2 py-0.5 rounded border text-amber-900 font-bold">${item.posisi}</span></p>
+                            <p class="mt-1 text-slate-600"><strong>Ket:</strong> ${item.keterangan}</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold mb-1">📜 Catatan Disposisi:</p>
+                            ${dispHtml || '<span class="text-slate-400 italic">Belum ada disposisi</span>'}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function renderTableTU() {
+            const tbody = document.getElementById('tu-table-body');
+            tbody.innerHTML = '';
+            dataset.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-emerald-800">${item.id}</td>
+                    <td class="p-3 text-slate-600">${item.tglMasuk}</td>
+                    <td class="p-3 font-medium">${item.pengirim}<br><span class="text-slate-400 text-[10px]">${item.noHp}</span></td>
+                    <td class="p-3">${item.perihal}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 rounded border font-semibold">${item.posisi}</span></td>
+                    <td class="p-3 text-[11px]">Dekan: ${item.disposisi.dekan.ket || '-'}<br>Wadek 1: ${item.disposisi.wadek1.ket || '-'}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full font-bold text-[10px]">${item.status}</span></td>
+                    <td class="p-3">${item.targetSelesai}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="openModalEdit('${item.id}')" class="p-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        function openModalEdit(id) {
+            const item = dataset.find(d => d.id === id);
+            if(!item) return;
+            document.getElementById('edit-id').value = item.id;
+            document.getElementById('edit-posisi').value = item.posisi;
+            document.getElementById('edit-status').value = item.status;
+            document.getElementById('modal-disposisi').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('modal-disposisi').classList.add('hidden'); }
+
+        function saveDisposisi(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const item = dataset.find(d => d.id === id);
+            if(item) {
+                item.posisi = document.getElementById('edit-posisi').value;
+                item.status = document.getElementById('edit-status').value;
+                const p = document.getElementById('disp-pimpinan').value;
+                const tgl = document.getElementById('disp-tgl').value;
+                const ket = document.getElementById('disp-ket').value;
+                if(tgl && ket) item.disposisi[p] = { tgl, ket };
+                renderTableTU();
+                renderMhsView(dataset);
+                closeModal();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            renderMhsView(dataset);
+        });
+    </script>
+</body>
+</html>
