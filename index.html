@@ -76,6 +76,9 @@
                     <button onclick="openModalTambah()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-xl text-xs transition-all shadow flex items-center gap-2">
                         <i data-lucide="plus-circle" class="w-4 h-4"></i> Input Surat Masuk
                     </button>
+                    <button onclick="fetchFromSpreadsheet()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-3 py-2.5 rounded-xl text-xs transition-all" title="Refresh Data Spreadsheet">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    </button>
                 </div>
             </div>
 
@@ -233,58 +236,20 @@
         </div>
     </div>
 
-    <!-- SCRIPT APLIKASI -->
+    <!-- SCRIPT APLIKASI SINKRON REALTIME -->
     <script>
-        // TEMPATKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI DALAM TANDA PETIK DI BAWAH INI
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyeLtyLamqk6rJbujzl5SwxLWri02EOm9taZGORO6DmZbTVqPg3FJJzm6FrnYWRG8CN/exec";
+        // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT KAMU DI SINI
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSL9NrKLpFOzafKjQZrOvQch284fV04FO1DiMsrdeZMdx7VKCzDQTJg4lKCKbKF1ML/exec";
 
-        const defaultData = [
-            {
-                id: "AGD-2026-001",
-                tglMasuk: "2026-10-20",
-                pengirim: "Ahmad Fauzi (NIM 1223010045)",
-                noHp: "081234567890",
-                perihal: "Permohonan Izin Penelitian Skripsi",
-                posisi: "Wadek 1",
-                status: "Disposisi Pimpinan",
-                targetSelesai: "2026-10-23",
-                keterangan: "Menunggu paraf persetujuan lokasi penelitian",
-                disposisi: {
-                    dekan: { tgl: "2026-10-20", ket: "Teruskan ke Wadek 1" },
-                    kabag: { tgl: "2026-10-20", ket: "Arsip agenda & teruskan" },
-                    wadek1: { tgl: "2026-10-21", ket: "Dalam proses peninjauan berkas" }
-                }
-            },
-            {
-                id: "AGD-2026-002",
-                tglMasuk: "2026-10-21",
-                pengirim: "Siti Nurhaliza (NIM 1223020088)",
-                noHp: "085712345678",
-                perihal: "Surat Keterangan Masih Kuliah",
-                posisi: "Siap Diambil",
-                status: "Selesai",
-                targetSelesai: "2026-10-22",
-                keterangan: "Dapat diambil di Loket 2 TU membawa KTM asli",
-                disposisi: {
-                    kabag: { tgl: "2026-10-21", ket: "Setujui & cetak" }
-                }
-            }
-        ];
-
-        let dataset = JSON.parse(localStorage.getItem('esurat_fsh_data')) || defaultData;
-
-        function saveLocal() {
-            localStorage.setItem('esurat_fsh_data', JSON.stringify(dataset));
-        }
+        let dataset = [];
 
         async function fetchFromSpreadsheet() {
-            if (!SCRIPT_URL || SCRIPT_URL.trim() === "") return;
+            if (!SCRIPT_URL || SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbzSL9NrKLpFOzafKjQZrOvQch284fV04FO1DiMsrdeZMdx7VKCzDQTJg4lKCKbKF1ML/exec")) return;
             try {
                 const res = await fetch(SCRIPT_URL);
                 const data = await res.json();
-                if (Array.isArray(data) && data.length > 0) {
+                if (Array.isArray(data)) {
                     dataset = data;
-                    saveLocal();
                     renderTableTU();
                     renderMhsView(dataset);
                 }
@@ -425,41 +390,30 @@
                 posisi: document.getElementById('add-posisi').value,
                 status: document.getElementById('add-status').value,
                 targetSelesai: document.getElementById('add-target').value,
-                keterangan: document.getElementById('add-ket').value,
-                disposisi: { dekan: {tgl:'', ket:''}, kabag: {tgl:'', ket:''}, wadek1: {tgl:'', ket:''}, wadek2: {tgl:'', ket:''}, wadek3: {tgl:'', ket:''} }
+                keterangan: document.getElementById('add-ket').value
             };
 
-            dataset.push(newSurat);
-            saveLocal();
-            renderTableTU();
-            renderMhsView(dataset);
             closeModalTambah();
 
-            if (SCRIPT_URL && SCRIPT_URL.trim() !== "") {
-                try {
-                    await fetch(SCRIPT_URL, {
-                        method: "POST",
-                        body: JSON.stringify({ action: "add", data: newSurat })
-                    });
-                } catch (err) {
-                    console.error("Gagal simpan ke Spreadsheet:", err);
-                }
+            // SINKRON SPREADSHEET LANGSUNG
+            if (SCRIPT_URL && !SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbzSL9NrKLpFOzafKjQZrOvQch284fV04FO1DiMsrdeZMdx7VKCzDQTJg4lKCKbKF1ML/exec")) {
+                await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "add", data: newSurat })
+                });
+                await fetchFromSpreadsheet();
             }
-            alert("Surat berhasil disimpan!");
+            alert("Surat berhasil ditambahkan dan disinkronkan ke Spreadsheet!");
         }
 
-        function hapusSurat(id) {
+        async function hapusSurat(id) {
             if (confirm(`Apakah Anda yakin ingin menghapus surat ${id}?`)) {
-                dataset = dataset.filter(item => item.id !== id);
-                saveLocal();
-                renderTableTU();
-                renderMhsView(dataset);
-
-                if (SCRIPT_URL && SCRIPT_URL.trim() !== "") {
-                    fetch(SCRIPT_URL, {
+                if (SCRIPT_URL && !SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbzSL9NrKLpFOzafKjQZrOvQch284fV04FO1DiMsrdeZMdx7VKCzDQTJg4lKCKbKF1ML/exec")) {
+                    await fetch(SCRIPT_URL, {
                         method: "POST",
                         body: JSON.stringify({ action: "delete", id: id })
-                    }).catch(err => console.error("Gagal hapus dari Spreadsheet:", err));
+                    });
+                    await fetchFromSpreadsheet();
                 }
             }
         }
@@ -475,28 +429,32 @@
 
         function closeModal() { document.getElementById('modal-disposisi').classList.add('hidden'); }
 
-        function saveDisposisi(e) {
+        async function saveDisposisi(e) {
             e.preventDefault();
-            const id = document.getElementById('edit-id').value;
-            const item = dataset.find(d => d.id === id);
-            if(item) {
-                item.posisi = document.getElementById('edit-posisi').value;
-                item.status = document.getElementById('edit-status').value;
-                const p = document.getElementById('disp-pimpinan').value;
-                const tgl = document.getElementById('disp-tgl').value;
-                const ket = document.getElementById('disp-ket').value;
-                if(!item.disposisi) item.disposisi = {};
-                if(tgl && ket) item.disposisi[p] = { tgl, ket };
-                saveLocal();
-                renderTableTU();
-                renderMhsView(dataset);
-                closeModal();
+            const updatePayload = {
+                id: document.getElementById('edit-id').value,
+                posisi: document.getElementById('edit-posisi').value,
+                status: document.getElementById('edit-status').value,
+                dispPimpinan: document.getElementById('disp-pimpinan').value,
+                dispTgl: document.getElementById('disp-tgl').value,
+                dispKet: document.getElementById('disp-ket').value
+            };
+
+            closeModal();
+
+            // UPDATE REALTTIME KE SPREADSHEET
+            if (SCRIPT_URL && !SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbzSL9NrKLpFOzafKjQZrOvQch284fV04FO1DiMsrdeZMdx7VKCzDQTJg4lKCKbKF1ML/exec")) {
+                await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "update", data: updatePayload })
+                });
+                await fetchFromSpreadsheet();
             }
+            alert("Posisi dan Disposisi berhasil diperbarui di Spreadsheet!");
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-            renderMhsView(dataset);
             fetchFromSpreadsheet();
         });
     </script>
