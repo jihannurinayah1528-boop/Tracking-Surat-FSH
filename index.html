@@ -73,10 +73,15 @@
                     <h2 class="text-xl font-bold text-slate-800">Dashboard Persuratan TU</h2>
                     <p class="text-xs text-slate-500">Kelola No. Agenda, Posisi Jabatan, dan Disposisi Pimpinan (Dekan, Kabag, Wadek 1, 2, 3).</p>
                 </div>
-                <!-- TOMBOL TAMBAH SURAT -->
-                <button onclick="openModalTambah()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-xl text-xs transition-all shadow flex items-center gap-2">
-                    <i data-lucide="plus-circle" class="w-4 h-4"></i> Input Surat Masuk
-                </button>
+                <!-- TOMBOL TAMBAH SURAT & RESET -->
+                <div class="flex items-center gap-2">
+                    <button onclick="openModalTambah()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-xl text-xs transition-all shadow flex items-center gap-2">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Input Surat Masuk
+                    </button>
+                    <button onclick="resetData()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-3 py-2.5 rounded-xl text-xs transition-all" title="Reset ke Data Bawaan">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -233,9 +238,9 @@
         </div>
     </div>
 
-    <!-- SCRIPT APPLICATION -->
+    <!-- SCRIPT APPLICATION DENGAN FUNGSI LOCAL STORAGE (PENYIMPANAN DATA PERMANEN) -->
     <script>
-        let dataset = [
+        const initialData = [
             {
                 id: "AGD-2026-001",
                 tglMasuk: "2026-10-20",
@@ -274,6 +279,24 @@
             }
         ];
 
+        // LOAD DATA DARI BROWSER LOCAL STORAGE
+        let dataset = JSON.parse(localStorage.getItem('esurat_fsh_data')) || initialData;
+
+        // FUNGSI SIMPAN KE LOCAL STORAGE
+        function saveDataToStorage() {
+            localStorage.setItem('esurat_fsh_data', JSON.stringify(dataset));
+        }
+
+        // FUNGSI RESET DATA
+        function resetData() {
+            if(confirm("Apakah Anda ingin mengembalikan data ke kondisi awal?")) {
+                dataset = initialData;
+                saveDataToStorage();
+                renderTableTU();
+                renderMhsView(dataset);
+            }
+        }
+
         function switchRole(role) {
             if (role === 'mahasiswa') {
                 document.getElementById('view-mahasiswa').classList.remove('hidden');
@@ -303,10 +326,16 @@
         function renderMhsView(data) {
             const container = document.getElementById('mhs-result-list');
             container.innerHTML = '';
+
+            if (data.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">Tidak ada data persuratan ditemukan.</div>`;
+                return;
+            }
+
             data.forEach(item => {
                 let dispHtml = '';
                 ['dekan', 'kabag', 'wadek1', 'wadek2', 'wadek3'].forEach(r => {
-                    if (item.disposisi[r] && item.disposisi[r].tgl) {
+                    if (item.disposisi && item.disposisi[r] && item.disposisi[r].tgl) {
                         dispHtml += `<div class="bg-slate-50 p-2 rounded border text-[11px] mb-1"><strong>${r.toUpperCase()} (${item.disposisi[r].tgl}):</strong> "${item.disposisi[r].ket}"</div>`;
                     }
                 });
@@ -366,7 +395,7 @@
                     <td class="p-3 font-medium">${item.pengirim}<br><span class="text-slate-400 text-[10px]">${item.noHp}</span></td>
                     <td class="p-3">${item.perihal}</td>
                     <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 rounded border font-semibold">${item.posisi}</span></td>
-                    <td class="p-3 text-[11px]">Dekan: ${item.disposisi.dekan.ket || '-'}<br>Wadek 1: ${item.disposisi.wadek1.ket || '-'}</td>
+                    <td class="p-3 text-[11px]">Dekan: ${(item.disposisi && item.disposisi.dekan) ? item.disposisi.dekan.ket || '-' : '-'}<br>Wadek 1: ${(item.disposisi && item.disposisi.wadek1) ? item.disposisi.wadek1.ket || '-' : '-'}</td>
                     <td class="p-3">${getStatusBadge(item.status)}</td>
                     <td class="p-3">${item.targetSelesai}</td>
                     <td class="p-3 text-center">
@@ -406,14 +435,17 @@
                 disposisi: { dekan: {tgl:'', ket:''}, kabag: {tgl:'', ket:''}, wadek1: {tgl:'', ket:''}, wadek2: {tgl:'', ket:''}, wadek3: {tgl:'', ket:''} }
             };
             dataset.push(newSurat);
+            saveDataToStorage(); // TERSIMPAN SECARA PERMANEN
             renderTableTU();
             renderMhsView(dataset);
             closeModalTambah();
+            alert("Surat berhasil disimpan!");
         }
 
         function hapusSurat(id) {
             if (confirm(`Apakah Anda yakin ingin menghapus surat dengan No. Agenda ${id}?`)) {
                 dataset = dataset.filter(item => item.id !== id);
+                saveDataToStorage(); // UPDATE PERMANEN SETELAH HAPUS
                 renderTableTU();
                 renderMhsView(dataset);
             }
@@ -440,7 +472,11 @@
                 const p = document.getElementById('disp-pimpinan').value;
                 const tgl = document.getElementById('disp-tgl').value;
                 const ket = document.getElementById('disp-ket').value;
+                if(!item.disposisi) {
+                    item.disposisi = { dekan: {tgl:'', ket:''}, kabag: {tgl:'', ket:''}, wadek1: {tgl:'', ket:''}, wadek2: {tgl:'', ket:''}, wadek3: {tgl:'', ket:''} };
+                }
                 if(tgl && ket) item.disposisi[p] = { tgl, ket };
+                saveDataToStorage(); // UPDATE PERMANEN SETELAH EDIT
                 renderTableTU();
                 renderMhsView(dataset);
                 closeModal();
