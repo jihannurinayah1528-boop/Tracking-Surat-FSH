@@ -143,6 +143,7 @@
                     <div>
                         <label class="block text-xs font-semibold mb-1">Posisi Surat Awal</label>
                         <select id="add-posisi" class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
+                            <option value="Resepsionis">Resepsionis</option>
                             <option value="Staff TU">Staff TU</option>
                             <option value="Kabag TU">Kabag TU</option>
                             <option value="Dekan">Dekan</option>
@@ -156,7 +157,8 @@
                         <select id="add-status" class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
                             <option value="Diterima TU">Diterima TU</option>
                             <option value="Disposisi Pimpinan">Disposisi Pimpinan</option>
-                            <option value="Ditolak / Perlu Revisi">Ditolak / Perlu Revisi</option>
+                            <option value="Perlu Revisi">Perlu Revisi</option>
+                            <option value="Ditolak">Ditolak</option>
                         </select>
                     </div>
                 </div>
@@ -173,9 +175,9 @@
         </div>
     </div>
 
-    <!-- MODAL DISPOSISI -->
+    <!-- MODAL DISPOSISI / EDIT -->
     <div id="modal-disposisi" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
             <h3 class="font-bold text-base text-slate-800 mb-4 pb-2 border-b">Update Posisi & Disposisi Surat</h3>
             
             <form id="form-disposisi" onsubmit="saveDisposisi(event)" class="space-y-4">
@@ -185,6 +187,7 @@
                     <div>
                         <label class="block text-xs font-semibold mb-1">Posisi Surat Saat Ini</label>
                         <select id="edit-posisi" class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
+                            <option value="Resepsionis">Resepsionis</option>
                             <option value="Dekan">Dekan</option>
                             <option value="Kabag TU">Kabag TU</option>
                             <option value="Wadek 1">Wadek 1</option>
@@ -200,7 +203,8 @@
                             <option value="Diterima TU">Diterima TU</option>
                             <option value="Disposisi Pimpinan">Disposisi Pimpinan</option>
                             <option value="Dalam Proses TTD">Dalam Proses TTD</option>
-                            <option value="Ditolak / Perlu Revisi">Ditolak / Perlu Revisi</option>
+                            <option value="Perlu Revisi">Perlu Revisi</option>
+                            <option value="Ditolak">Ditolak</option>
                             <option value="Selesai">Selesai / Siap Diambil</option>
                         </select>
                     </div>
@@ -284,23 +288,21 @@
 
         function getStatusBadge(status) {
             if(status.includes('Selesai')) {
-                return `<span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full text-[10px] font-bold border border-emerald-300">Selesai / Siap Diambil</span>`;
-            } else if(status.includes('Ditolak') || status.includes('Revisi')) {
-                return `<span class="px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full text-[10px] font-bold border border-rose-300">Ditolak / Perlu Revisi</span>`;
+                return `<span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full text-[11px] font-bold border border-emerald-300">Selesai / Siap Diambil</span>`;
+            } else if(status.includes('Revisi')) {
+                return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full text-[11px] font-bold border border-amber-300">Perlu Revisi</span>`;
+            } else if(status.includes('Ditolak')) {
+                return `<span class="px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full text-[11px] font-bold border border-rose-300">Ditolak</span>`;
             } else if(status.includes('Disposisi') || status.includes('TTD')) {
-                return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full text-[10px] font-bold border border-amber-300">${status}</span>`;
+                return `<span class="px-2.5 py-1 bg-blue-100 text-blue-800 rounded-full text-[11px] font-bold border border-blue-300">${status}</span>`;
             } else {
-                return `<span class="px-2.5 py-1 bg-blue-100 text-blue-800 rounded-full text-[10px] font-bold border border-blue-300">${status}</span>`;
+                return `<span class="px-2.5 py-1 bg-slate-100 text-slate-800 rounded-full text-[11px] font-bold border border-slate-300">${status}</span>`;
             }
         }
 
         function renderMhsView(data) {
             const container = document.getElementById('mhs-result-list');
             container.innerHTML = '';
-            if (data.length === 0) {
-                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">Tidak ada data persuratan ditemukan.</div>`;
-                return;
-            }
             data.forEach(item => {
                 let dispHtml = '';
                 ['dekan', 'kabag', 'wadek1', 'wadek2', 'wadek3'].forEach(r => {
@@ -366,13 +368,13 @@
                     <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 rounded border font-semibold">${item.posisi}</span></td>
                     <td class="p-3 text-[11px]">Dekan: ${item.disposisi.dekan.ket || '-'}<br>Wadek 1: ${item.disposisi.wadek1.ket || '-'}</td>
                     <td class="p-3">${getStatusBadge(item.status)}</td>
-                    <td class="p-3 text-slate-600">${item.targetSelesai}</td>
+                    <td class="p-3">${item.targetSelesai}</td>
                     <td class="p-3 text-center">
                         <div class="flex items-center justify-center gap-1">
-                            <button onclick="openModalEdit('${item.id}')" class="p-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg transition-all" title="Edit Disposisi">
+                            <button onclick="openModalEdit('${item.id}')" class="p-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg" title="Edit Disposisi">
                                 <i data-lucide="edit-3" class="w-4 h-4"></i>
                             </button>
-                            <button onclick="hapusSurat('${item.id}')" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition-all" title="Hapus Surat">
+                            <button onclick="hapusSurat('${item.id}')" class="p-1.5 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-lg" title="Hapus Surat">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
