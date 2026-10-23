@@ -46,10 +46,11 @@
                     <h2 class="text-2xl font-bold mb-2">Lacak Posisi & Status Surat Anda</h2>
                     <p class="text-emerald-100 text-sm mb-4">Cek sejauh mana proses persuratan Anda secara real-time tanpa perlu mengantre di loket Tata Usaha.</p>
                 </div>
+                <!-- Search Box -->
                 <div class="bg-white p-2 rounded-xl shadow-md flex flex-col sm:flex-row gap-2 max-w-xl text-slate-800">
                     <div class="flex-1 flex items-center gap-2 px-3 bg-slate-100 rounded-lg">
                         <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
-                        <input id="search-mhs" type="text" placeholder="Masukkan No. Agenda / NIM / Nama..." class="w-full bg-transparent py-2.5 text-sm outline-none">
+                        <input id="search-mhs" type="text" placeholder="Masukkan No. Agenda / No. Surat / Pengirim..." class="w-full bg-transparent py-2.5 text-sm outline-none">
                     </div>
                     <button onclick="searchSuratMhs()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-5 py-2.5 rounded-lg text-sm transition-all shadow">
                         Cari Surat
@@ -57,6 +58,7 @@
                 </div>
             </div>
 
+            <!-- Hasil Tracking Mahasiswa -->
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
                 <h3 class="font-bold text-base mb-4 flex items-center gap-2">
                     <i data-lucide="list" class="w-5 h-5 text-emerald-600"></i> Status Permohonan Surat
@@ -66,37 +68,40 @@
         </section>
 
 
-        <!-- VIEW 2: PORTAL TATA USAHA -->
+        <!-- VIEW 2: PORTAL STAF TATA USAHA -->
         <section id="view-tu" class="hidden space-y-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 class="text-xl font-bold text-slate-800">Dashboard Persuratan TU</h2>
-                    <p class="text-xs text-slate-500">Kelola No. Agenda, Posisi Jabatan, dan Disposisi Pimpinan (Dekan, Kabag, Wadek 1, 2, 3).</p>
+                    <p class="text-xs text-slate-500">Sesuai format Spreadsheet Tracking Surat TU FSH.</p>
                 </div>
-                <!-- TOMBOL TAMBAH SURAT -->
+                <!-- Tombol Input Surat Masuk -->
                 <button onclick="openModalTambah()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-xl text-xs transition-all shadow flex items-center gap-2">
                     <i data-lucide="plus-circle" class="w-4 h-4"></i> Input Surat Masuk
                 </button>
             </div>
 
+            <!-- Table View TU -->
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-4 border-b border-slate-200 bg-slate-50">
-                    <input id="search-tu" onkeyup="renderTableTU()" type="text" placeholder="Cari No. Agenda, Pengirim, Perihal..." class="w-full sm:w-80 px-3 py-1.5 text-xs rounded-lg border border-slate-300 outline-none">
+                <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center gap-3">
+                    <input id="search-tu" onkeyup="renderTableTU()" type="text" placeholder="Cari No Agenda, No Surat, Pengirim, Perihal..." class="w-full sm:w-80 px-3 py-1.5 text-xs rounded-lg border border-slate-300 outline-none">
+                    <span class="text-xs text-slate-500 font-medium">Total: <strong id="total-count">0</strong> Surat</span>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs border-collapse">
                         <thead class="bg-slate-100 text-slate-700 font-semibold uppercase border-b border-slate-200">
                             <tr>
-                                <th class="p-3">No. Agenda</th>
-                                <th class="p-3">Tgl Masuk</th>
-                                <th class="p-3">Pengirim & No. HP</th>
-                                <th class="p-3">Perihal</th>
-                                <th class="p-3">Posisi Surat</th>
-                                <th class="p-3">Riwayat Disposisi</th>
-                                <th class="p-3">Status Surat</th>
-                                <th class="p-3">Target Selesai</th>
-                                <th class="p-3 text-center">Aksi</th>
+                                <th class="p-2.5 text-center border-r border-slate-200">No Agenda</th>
+                                <th class="p-2.5 border-r border-slate-200">No Surat</th>
+                                <th class="p-2.5 border-r border-slate-200">Tgl Masuk</th>
+                                <th class="p-2.5 border-r border-slate-200">Pengirim & No HP</th>
+                                <th class="p-2.5 border-r border-slate-200">Perihal</th>
+                                <th class="p-2.5 text-center border-r border-slate-200" colspan="5">Posisi Disposisi (Dekan, Wadek 1, 2, 3, Kabag)</th>
+                                <th class="p-2.5 border-r border-slate-200">Status Surat</th>
+                                <th class="p-2.5 border-r border-slate-200">Target Selesai</th>
+                                <th class="p-2.5 border-r border-slate-200">Keterangan</th>
+                                <th class="p-2.5 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="tu-table-body" class="divide-y divide-slate-200 bg-white"></tbody>
@@ -107,15 +112,23 @@
 
     </main>
 
-    <!-- MODAL FORM INPUT SURAT BARU -->
+    <!-- MODAL INPUT SURAT MASUK BARU -->
     <div id="modal-tambah" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
-            <h3 class="font-bold text-base text-slate-800 mb-4 pb-2 border-b">Input Surat Masuk Baru</h3>
+            <h3 class="font-bold text-base text-slate-800 mb-4 pb-2 border-b flex items-center gap-2">
+                <i data-lucide="file-plus" class="w-5 h-5 text-emerald-600"></i> Input Surat Masuk Baru
+            </h3>
             
             <form onsubmit="simpanSuratBaru(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-semibold mb-1">No. Agenda Surat</label>
-                    <input type="text" id="add-id" placeholder="Contoh: AGD-2026-003" required class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">No Agenda</label>
+                        <input type="text" id="add-noagenda" placeholder="Contoh: 001" required class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">No Surat</label>
+                        <input type="text" id="add-nosurat" placeholder="Contoh: B/KMS/X/2026" required class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
@@ -127,41 +140,31 @@
                         <input type="date" id="add-target" required class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1">Nama Pengirim & NIM / NIP</label>
-                    <input type="text" id="add-pengirim" placeholder="Contoh: Ahmad Fauzi (NIM 1223010045)" required class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1">No. HP / WhatsApp</label>
-                    <input type="text" id="add-nohp" placeholder="Contoh: 081234567890" required class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">Nama Pengirim</label>
+                        <input type="text" id="add-pengirim" placeholder="Contoh: Jihan" required class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">No. HP / WhatsApp</label>
+                        <input type="text" id="add-nohp" placeholder="Contoh: 0897654321" required class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
+                    </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold mb-1">Perihal Surat</label>
-                    <input type="text" id="add-perihal" placeholder="Contoh: Permohonan Ujian Munaqosyah" required class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Posisi Surat Awal</label>
-                        <select id="add-posisi" class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
-                            <option value="Staff TU">Staff TU</option>
-                            <option value="Kabag TU">Kabag TU</option>
-                            <option value="Dekan">Dekan</option>
-                            <option value="Wadek 1">Wadek 1</option>
-                            <option value="Wadek 2">Wadek 2</option>
-                            <option value="Wadek 3">Wadek 3</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Status Awal</label>
-                        <select id="add-status" class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
-                            <option value="Diterima TU">Diterima TU</option>
-                            <option value="Disposisi Pimpinan">Disposisi Pimpinan</option>
-                        </select>
-                    </div>
+                    <input type="text" id="add-perihal" placeholder="Contoh: Permohonan Keringanan UKT" required class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1">Keterangan Tambahan</label>
-                    <input type="text" id="add-ket" placeholder="Catatan awal..." class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
+                    <label class="block text-xs font-semibold mb-1">Status Surat Awal</label>
+                    <select id="add-status" class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
+                        <option value="Proses">Proses</option>
+                        <option value="Selesai">Selesai</option>
+                        <option value="Ditolak">Ditolak / Tolak</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">Keterangan</label>
+                    <input type="text" id="add-ket" placeholder="Catatan tambahan..." class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
                 </div>
 
                 <div class="flex justify-end gap-2 pt-3 border-t">
@@ -172,56 +175,51 @@
         </div>
     </div>
 
-    <!-- MODAL DISPOSISI -->
+    <!-- MODAL EDIT DISPOSISI & STATUS -->
     <div id="modal-disposisi" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200">
-            <h3 class="font-bold text-base text-slate-800 mb-4 pb-2 border-b">Update Posisi & Disposisi Surat</h3>
+            <h3 class="font-bold text-base text-slate-800 mb-4 pb-2 border-b">Update Disposisi & Status Surat</h3>
             
             <form id="form-disposisi" onsubmit="saveDisposisi(event)" class="space-y-4">
                 <input type="hidden" id="edit-id">
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold mb-1">Posisi Surat Saat Ini</label>
-                        <select id="edit-posisi" class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
-                            <option value="Dekan">Dekan</option>
-                            <option value="Kabag TU">Kabag TU</option>
-                            <option value="Wadek 1">Wadek 1</option>
-                            <option value="Wadek 2">Wadek 2</option>
-                            <option value="Wadek 3">Wadek 3</option>
-                            <option value="Staff TU">Staff TU</option>
-                            <option value="Siap Diambil">Siap Diambil</option>
+                        <label class="block text-xs font-semibold mb-1">Status Surat</label>
+                        <select id="edit-status" class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
+                            <option value="Proses">Proses</option>
+                            <option value="Selesai">Selesai</option>
+                            <option value="Ditolak">Ditolak / Tolak</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold mb-1">Status Keseluruhan</label>
-                        <select id="edit-status" class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none">
-                            <option value="Diterima TU">Diterima TU</option>
-                            <option value="Disposisi Pimpinan">Disposisi Pimpinan</option>
-                            <option value="Dalam Proses TTD">Dalam Proses TTD</option>
-                            <option value="Selesai">Selesai / Siap Diambil</option>
-                        </select>
+                        <label class="block text-xs font-semibold mb-1">Keterangan Tambahan</label>
+                        <input type="text" id="edit-keterangan" class="w-full text-xs p-2 rounded-lg border border-slate-300 outline-none" placeholder="Catatan...">
                     </div>
                 </div>
 
                 <div class="p-3 bg-slate-50 rounded-xl border space-y-2">
-                    <p class="text-xs font-bold text-emerald-800">Tambah / Update Catatan Disposisi</p>
+                    <p class="text-xs font-bold text-emerald-800">Update Disposisi Pimpinan</p>
                     <select id="disp-pimpinan" class="w-full text-xs p-2 rounded-lg border border-slate-300 bg-white">
                         <option value="dekan">Dekan</option>
-                        <option value="kabag">Kabag TU</option>
                         <option value="wadek1">Wadek 1</option>
                         <option value="wadek2">Wadek 2</option>
                         <option value="wadek3">Wadek 3</option>
+                        <option value="kabag">Kabag TU</option>
                     </select>
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="date" id="disp-tgl" class="text-xs p-2 rounded-lg border border-slate-300 bg-white">
-                        <input type="text" id="disp-ket" placeholder="Catatan Disposisi..." class="text-xs p-2 rounded-lg border border-slate-300 bg-white">
+                        <input type="text" id="disp-tgl" placeholder="Tanggal (misal: 22/10)" class="text-xs p-2 rounded-lg border border-slate-300 bg-white">
+                        <select id="disp-ket" class="text-xs p-2 rounded-lg border border-slate-300 bg-white">
+                            <option value="✅">✅ (ACC / Disetujui)</option>
+                            <option value="❌">❌ (Ditolak / Revisi)</option>
+                            <option value="⏳">⏳ (Proses)</option>
+                        </select>
                     </div>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100">Batal</button>
-                    <button type="submit" class="px-4 py-2 rounded-lg text-xs font-medium bg-emerald-600 text-white hover:bg-emerald-700">Simpan Disposisi</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg text-xs font-medium bg-emerald-600 text-white hover:bg-emerald-700">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
@@ -231,39 +229,21 @@
     <script>
         let dataset = [
             {
-                id: "AGD-2026-001",
-                tglMasuk: "2026-10-20",
-                pengirim: "Ahmad Fauzi (NIM 1223010045)",
-                noHp: "081234567890",
-                perihal: "Permohonan Izin Penelitian Skripsi",
-                posisi: "Wadek 1",
-                status: "Disposisi Pimpinan",
-                targetSelesai: "2026-10-23",
-                keterangan: "Menunggu paraf persetujuan lokasi penelitian",
-                disposisi: {
-                    dekan: { tgl: "2026-10-20", ket: "Teruskan ke Wadek 1" },
-                    kabag: { tgl: "2026-10-20", ket: "Arsip agenda & teruskan" },
-                    wadek1: { tgl: "2026-10-21", ket: "Dalam proses peninjauan berkas" },
-                    wadek2: { tgl: "", ket: "" },
-                    wadek3: { tgl: "", ket: "" }
-                }
-            },
-            {
-                id: "AGD-2026-002",
-                tglMasuk: "2026-10-21",
-                pengirim: "Siti Nurhaliza (NIM 1223020088)",
-                noHp: "085712345678",
-                perihal: "Surat Keterangan Masih Kuliah",
-                posisi: "Siap Diambil",
-                status: "Selesai",
-                targetSelesai: "2026-10-22",
-                keterangan: "Dapat diambil di Loket 2 TU membawa KTM asli",
-                disposisi: {
-                    dekan: { tgl: "", ket: "" },
-                    kabag: { tgl: "2026-10-21", ket: "Setujui & cetak" },
+                noAgenda: "001",
+                noSurat: "B/KMS/X/2026",
+                tglMasuk: "2026-10-22",
+                pengirim: "Jihan",
+                noHp: "987654",
+                perihal: "Permohonan Keringanan UKT",
+                status: "Ditolak",
+                targetSelesai: "2026-10-24",
+                keterangan: "Ditolak",
+                posisi: {
+                    dekan: { tgl: "22/10", ket: "✅" },
                     wadek1: { tgl: "", ket: "" },
-                    wadek2: { tgl: "", ket: "" },
-                    wadek3: { tgl: "", ket: "" }
+                    wadek2: { tgl: "23/10", ket: "❌" },
+                    wadek3: { tgl: "", ket: "" },
+                    kabag: { tgl: "", ket: "" }
                 }
             }
         ];
@@ -283,31 +263,53 @@
         function renderMhsView(data) {
             const container = document.getElementById('mhs-result-list');
             container.innerHTML = '';
+            if (data.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">Tidak ada data persuratan ditemukan.</div>`;
+                return;
+            }
+
             data.forEach(item => {
+                let statusClass = "bg-amber-100 text-amber-800 border-amber-300";
+                if(item.status.includes('Ditolak') || item.status.includes('Tolak')) {
+                    statusClass = "bg-rose-100 text-rose-800 border-rose-300";
+                } else if(item.status.includes('Selesai')) {
+                    statusClass = "bg-emerald-100 text-emerald-800 border-emerald-300";
+                }
+
                 let dispHtml = '';
-                ['dekan', 'kabag', 'wadek1', 'wadek2', 'wadek3'].forEach(r => {
-                    if (item.disposisi[r] && item.disposisi[r].tgl) {
-                        dispHtml += `<div class="bg-slate-50 p-2 rounded border text-[11px] mb-1"><strong>${r.toUpperCase()} (${item.disposisi[r].tgl}):</strong> "${item.disposisi[r].ket}"</div>`;
+                const roles = [
+                    { key: 'dekan', label: 'Dekan' },
+                    { key: 'wadek1', label: 'Wadek 1' },
+                    { key: 'wadek2', label: 'Wadek 2' },
+                    { key: 'wadek3', label: 'Wadek 3' },
+                    { key: 'kabag', label: 'Kabag TU' }
+                ];
+
+                roles.forEach(r => {
+                    if (item.posisi[r.key] && item.posisi[r.key].tgl) {
+                        dispHtml += `<span class="inline-block bg-slate-100 px-2 py-1 rounded border text-[11px] mr-1 mb-1"><strong>${r.label}:</strong> ${item.posisi[r.key].tgl} (${item.posisi[r.key].ket})</span>`;
                     }
                 });
 
                 const card = document.createElement('div');
-                card.className = "p-4 rounded-xl border border-slate-200 bg-white space-y-2";
+                card.className = "p-4 rounded-xl border border-slate-200 bg-white space-y-2 shadow-sm";
                 card.innerHTML = `
                     <div class="flex justify-between items-center border-b pb-2">
                         <div>
-                            <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">${item.id}</span>
+                            <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Agenda: ${item.noAgenda}</span>
+                            <span class="text-xs text-slate-500 ml-2">No. Surat: <strong>${item.noSurat}</strong></span>
                             <h4 class="font-bold text-sm text-slate-800 mt-1">${item.perihal}</h4>
                         </div>
-                        <span class="text-xs font-bold px-2 py-1 bg-amber-100 text-amber-800 rounded-full">${item.status}</span>
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-full border ${statusClass}">${item.status}</span>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs pt-1">
                         <div>
-                            <p><strong>📍 Posisi Surat:</strong> <span class="bg-amber-50 px-2 py-0.5 rounded border text-amber-900 font-bold">${item.posisi}</span></p>
-                            <p class="mt-1 text-slate-600"><strong>Ket:</strong> ${item.keterangan}</p>
+                            <p><strong>Pengirim:</strong> ${item.pengirim} (${item.noHp})</p>
+                            <p class="mt-1 text-slate-600"><strong>Target Selesai:</strong> ${item.targetSelesai}</p>
+                            <p class="mt-1 text-slate-600"><strong>Keterangan:</strong> ${item.keterangan}</p>
                         </div>
                         <div>
-                            <p class="font-semibold mb-1">📜 Catatan Disposisi:</p>
+                            <p class="font-semibold mb-1">📜 Status Disposisi Pimpinan:</p>
                             ${dispHtml || '<span class="text-slate-400 italic">Belum ada disposisi</span>'}
                         </div>
                     </div>
@@ -319,21 +321,48 @@
 
         function renderTableTU() {
             const tbody = document.getElementById('tu-table-body');
+            const searchVal = document.getElementById('search-tu').value.toLowerCase().trim();
             tbody.innerHTML = '';
-            dataset.forEach(item => {
+
+            const filtered = dataset.filter(i => 
+                i.noAgenda.toLowerCase().includes(searchVal) ||
+                i.noSurat.toLowerCase().includes(searchVal) ||
+                i.pengirim.toLowerCase().includes(searchVal) ||
+                i.perihal.toLowerCase().includes(searchVal)
+            );
+
+            document.getElementById('total-count').innerText = filtered.length;
+
+            filtered.forEach((item) => {
+                let statusBadge = `<span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-bold text-[10px]">${item.status}</span>`;
+                if(item.status.includes('Ditolak') || item.status.includes('Tolak')) {
+                    statusBadge = `<span class="px-2 py-0.5 bg-rose-100 text-rose-800 rounded font-bold text-[10px]">Ditolak</span>`;
+                } else if(item.status.includes('Selesai')) {
+                    statusBadge = `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">Selesai</span>`;
+                }
+
                 const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-all";
                 tr.innerHTML = `
-                    <td class="p-3 font-bold text-emerald-800">${item.id}</td>
-                    <td class="p-3 text-slate-600">${item.tglMasuk}</td>
-                    <td class="p-3 font-medium">${item.pengirim}<br><span class="text-slate-400 text-[10px]">${item.noHp}</span></td>
-                    <td class="p-3">${item.perihal}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 rounded border font-semibold">${item.posisi}</span></td>
-                    <td class="p-3 text-[11px]">Dekan: ${item.disposisi.dekan.ket || '-'}<br>Wadek 1: ${item.disposisi.wadek1.ket || '-'}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full font-bold text-[10px]">${item.status}</span></td>
-                    <td class="p-3">${item.targetSelesai}</td>
-                    <td class="p-3 text-center">
-                        <button onclick="openModalEdit('${item.id}')" class="p-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg">
-                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                    <td class="p-2.5 text-center font-bold text-emerald-800 border-r">${item.noAgenda}</td>
+                    <td class="p-2.5 font-semibold text-slate-700 border-r">${item.noSurat}</td>
+                    <td class="p-2.5 text-slate-600 border-r">${item.tglMasuk}</td>
+                    <td class="p-2.5 border-r"><div class="font-medium text-slate-800">${item.pengirim}</div><div class="text-[10px] text-slate-400">${item.noHp}</div></td>
+                    <td class="p-2.5 border-r font-medium">${item.perihal}</td>
+                    <td class="p-2 text-center border-r text-[11px]">${item.posisi.dekan.tgl ? item.posisi.dekan.tgl + '<br>' + item.posisi.dekan.ket : '-'}</td>
+                    <td class="p-2 text-center border-r text-[11px]">${item.posisi.wadek1.tgl ? item.posisi.wadek1.tgl + '<br>' + item.posisi.wadek1.ket : '-'}</td>
+                    <td class="p-2 text-center border-r text-[11px]">${item.posisi.wadek2.tgl ? item.posisi.wadek2.tgl + '<br>' + item.posisi.wadek2.ket : '-'}</td>
+                    <td class="p-2 text-center border-r text-[11px]">${item.posisi.wadek3.tgl ? item.posisi.wadek3.tgl + '<br>' + item.posisi.wadek3.ket : '-'}</td>
+                    <td class="p-2 text-center border-r text-[11px]">${item.posisi.kabag.tgl ? item.posisi.kabag.tgl + '<br>' + item.posisi.kabag.ket : '-'}</td>
+                    <td class="p-2.5 border-r">${statusBadge}</td>
+                    <td class="p-2.5 border-r text-slate-600">${item.targetSelesai}</td>
+                    <td class="p-2.5 border-r text-slate-600">${item.keterangan}</td>
+                    <td class="p-2.5 text-center space-x-1">
+                        <button onclick="openModalEdit('${item.noAgenda}')" class="p-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded" title="Edit Disposisi">
+                            <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                        </button>
+                        <button onclick="hapusSurat('${item.noAgenda}')" class="p-1 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded" title="Hapus Surat">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                         </button>
                     </td>
                 `;
@@ -342,6 +371,7 @@
             lucide.createIcons();
         }
 
+        // Modal Input Surat
         function openModalTambah() {
             document.getElementById('add-tgl').value = new Date().toISOString().split('T')[0];
             document.getElementById('modal-tambah').classList.remove('hidden');
@@ -351,16 +381,16 @@
         function simpanSuratBaru(e) {
             e.preventDefault();
             const newSurat = {
-                id: document.getElementById('add-id').value,
+                noAgenda: document.getElementById('add-noagenda').value,
+                noSurat: document.getElementById('add-nosurat').value,
                 tglMasuk: document.getElementById('add-tgl').value,
                 pengirim: document.getElementById('add-pengirim').value,
                 noHp: document.getElementById('add-nohp').value,
                 perihal: document.getElementById('add-perihal').value,
-                posisi: document.getElementById('add-posisi').value,
                 status: document.getElementById('add-status').value,
                 targetSelesai: document.getElementById('add-target').value,
                 keterangan: document.getElementById('add-ket').value,
-                disposisi: { dekan: {tgl:'', ket:''}, kabag: {tgl:'', ket:''}, wadek1: {tgl:'', ket:''}, wadek2: {tgl:'', ket:''}, wadek3: {tgl:'', ket:''} }
+                posisi: { dekan: {tgl:'', ket:''}, wadek1: {tgl:'', ket:''}, wadek2: {tgl:'', ket:''}, wadek3: {tgl:'', ket:''}, kabag: {tgl:'', ket:''} }
             };
             dataset.push(newSurat);
             renderTableTU();
@@ -368,12 +398,13 @@
             closeModalTambah();
         }
 
-        function openModalEdit(id) {
-            const item = dataset.find(d => d.id === id);
+        // Modal Edit Disposisi
+        function openModalEdit(noAgenda) {
+            const item = dataset.find(d => d.noAgenda === noAgenda);
             if(!item) return;
-            document.getElementById('edit-id').value = item.id;
-            document.getElementById('edit-posisi').value = item.posisi;
+            document.getElementById('edit-id').value = item.noAgenda;
             document.getElementById('edit-status').value = item.status;
+            document.getElementById('edit-keterangan').value = item.keterangan;
             document.getElementById('modal-disposisi').classList.remove('hidden');
         }
 
@@ -381,19 +412,44 @@
 
         function saveDisposisi(e) {
             e.preventDefault();
-            const id = document.getElementById('edit-id').value;
-            const item = dataset.find(d => d.id === id);
+            const noAgenda = document.getElementById('edit-id').value;
+            const item = dataset.find(d => d.noAgenda === noAgenda);
             if(item) {
-                item.posisi = document.getElementById('edit-posisi').value;
                 item.status = document.getElementById('edit-status').value;
+                item.keterangan = document.getElementById('edit-keterangan').value;
+
                 const p = document.getElementById('disp-pimpinan').value;
                 const tgl = document.getElementById('disp-tgl').value;
                 const ket = document.getElementById('disp-ket').value;
-                if(tgl && ket) item.disposisi[p] = { tgl, ket };
+
+                if(tgl) {
+                    item.posisi[p] = { tgl, ket };
+                }
+
                 renderTableTU();
                 renderMhsView(dataset);
                 closeModal();
             }
+        }
+
+        // Fitur Hapus Surat
+        function hapusSurat(noAgenda) {
+            if(confirm(`Apakah Anda yakin ingin menghapus surat dengan No Agenda ${noAgenda}?`)) {
+                dataset = dataset.filter(d => d.noAgenda !== noAgenda);
+                renderTableTU();
+                renderMhsView(dataset);
+            }
+        }
+
+        function searchSuratMhs() {
+            const q = document.getElementById('search-mhs').value.toLowerCase().trim();
+            const filtered = dataset.filter(i => 
+                i.noAgenda.toLowerCase().includes(q) ||
+                i.noSurat.toLowerCase().includes(q) ||
+                i.pengirim.toLowerCase().includes(q) ||
+                i.perihal.toLowerCase().includes(q)
+            );
+            renderMhsView(filtered);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
