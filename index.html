@@ -238,13 +238,13 @@
 
     <!-- SCRIPT APLIKASI SINKRON REALTIME -->
     <script>
-        // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT KAMU DI SINI
+        // URL WEB APP GOOGLE APPS SCRIPT ANDA DITERAPKAN DI SINI SECARA BENAR
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSL9NrKLpFOzafKjQZrOvQch284fV04FO1DiMsrdeZMdx7VKCzDQTJg4lKCKbKF1ML/exec";
 
         let dataset = [];
 
         async function fetchFromSpreadsheet() {
-            if (!SCRIPT_URL || SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbzSL9NrKLpFOzafKjQZrOvQch284fV04FO1DiMsrdeZMdx7VKCzDQTJg4lKCKbKF1ML/exec")) return;
+            if (!SCRIPT_URL) return;
             try {
                 const res = await fetch(SCRIPT_URL);
                 const data = await res.json();
@@ -395,8 +395,7 @@
 
             closeModalTambah();
 
-            // SINKRON SPREADSHEET LANGSUNG
-            if (SCRIPT_URL && !SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbzSL9NrKLpFOzafKjQZrOvQch284fV04FO1DiMsrdeZMdx7VKCzDQTJg4lKCKbKF1ML/exec")) {
+            if (SCRIPT_URL) {
                 await fetch(SCRIPT_URL, {
                     method: "POST",
                     body: JSON.stringify({ action: "add", data: newSurat })
@@ -408,7 +407,7 @@
 
         async function hapusSurat(id) {
             if (confirm(`Apakah Anda yakin ingin menghapus surat ${id}?`)) {
-                if (SCRIPT_URL && !SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbzSL9NrKLpFOzafKjQZrOvQch284fV04FO1DiMsrdeZMdx7VKCzDQTJg4lKCKbKF1ML/exec")) {
+                if (SCRIPT_URL) {
                     await fetch(SCRIPT_URL, {
                         method: "POST",
                         body: JSON.stringify({ action: "delete", id: id })
@@ -442,8 +441,7 @@
 
             closeModal();
 
-            // UPDATE REALTTIME KE SPREADSHEET
-            if (SCRIPT_URL && !SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbzSL9NrKLpFOzafKjQZrOvQch284fV04FO1DiMsrdeZMdx7VKCzDQTJg4lKCKbKF1ML/exec")) {
+            if (SCRIPT_URL) {
                 await fetch(SCRIPT_URL, {
                     method: "POST",
                     body: JSON.stringify({ action: "update", data: updatePayload })
