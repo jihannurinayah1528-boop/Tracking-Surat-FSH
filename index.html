@@ -236,12 +236,13 @@
         </div>
     </div>
 
-    <!-- SCRIPT APLIKASI SINKRON REALTIME -->
+    <!-- SCRIPT APLIKASI SINKRON REALTIME & PROTEKSI KATA SANDI -->
     <script>
-        // URL WEB APP GOOGLE APPS SCRIPT ANDA DITERAPKAN DI SINI SECARA BENAR
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSL9NrKLpFOzafKjQZrOvQch284fV04FO1DiMsrdeZMdx7VKCzDQTJg4lKCKbKF1ML/exec";
+        const ADMIN_PASSWORD = "prayoganayayudha22";
 
         let dataset = [];
+        let isTuAuthenticated = false;
 
         async function fetchFromSpreadsheet() {
             if (!SCRIPT_URL) return;
@@ -262,10 +263,34 @@
             if (role === 'mahasiswa') {
                 document.getElementById('view-mahasiswa').classList.remove('hidden');
                 document.getElementById('view-tu').classList.add('hidden');
+                
+                // Update tampilan tombol active
+                document.getElementById('btn-role-mahasiswa').className = "px-4 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white text-emerald-800 shadow";
+                document.getElementById('btn-role-tu').className = "px-4 py-1.5 rounded-lg text-xs font-semibold transition-all text-emerald-200 hover:text-white";
+                
                 renderMhsView(dataset);
             } else {
+                // MINTA KATA SANDI JIKA BELUM TERVERIFIKASI
+                if (!isTuAuthenticated) {
+                    const inputPass = prompt("Masukkan Kata Sandi Khusus Staf TU / Admin:");
+                    if (inputPass === ADMIN_PASSWORD) {
+                        isTuAuthenticated = true;
+                        alert("Akses Admin Diterima.");
+                    } else if (inputPass !== null) {
+                        alert("Kata sandi salah! Akses ditolak.");
+                        return;
+                    } else {
+                        return; // Batal klik
+                    }
+                }
+
                 document.getElementById('view-tu').classList.remove('hidden');
                 document.getElementById('view-mahasiswa').classList.add('hidden');
+
+                // Update tampilan tombol active
+                document.getElementById('btn-role-tu').className = "px-4 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white text-emerald-800 shadow";
+                document.getElementById('btn-role-mahasiswa').className = "px-4 py-1.5 rounded-lg text-xs font-semibold transition-all text-emerald-200 hover:text-white";
+
                 renderTableTU();
             }
         }
